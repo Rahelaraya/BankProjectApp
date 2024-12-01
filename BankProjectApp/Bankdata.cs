@@ -1,0 +1,20 @@
+﻿using BankProjectApp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+
+namespace BankProjectApp
+{
+   
+    public class Bankdata
+    {
+
+        [JsonPropertyName("Accounts")]
+        public List<BankAccounts> AllAccountsJson { get; set; } = new List<BankAccounts>();
+
+
+    }
+}

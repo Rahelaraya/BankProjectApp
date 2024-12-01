@@ -1,0 +1,60 @@
+{
+  "Accounts": [
+    {
+      "Name": "Elon Musk",
+      "AccountType": "PersonalAccount",
+      "AccountNumber": 1111,
+      "AccountBalance": 10000,
+      "Transactions": [
+        {
+          "TransactionId": "1",
+          "Date": "2024-01-01",
+          "Type": "Deposit",
+          "Amount": 1000.0
+
+        },
+        {
+          "TransactionId": "1",
+          "Date": "2024-01-10",
+          "Type": "Withdraw",
+          "Amount": 500.0
+        }
+
+      ]
+
+    },
+    {
+      "Name": "Elon Musk",
+      "AccountType": "InvestmentAccount",
+      "AccountNumber": 2222,
+      "AccountBalance": 20000.0,
+      "Transactions": [
+        {
+          "TransactionId": "2",
+          "Date": "2024-01-05",
+          "Type": "Deposit",
+          "Amount": 2000.0
+        }
+
+      ]
+    },
+    {
+      "Name": "Elon Musk",
+      "AccountType": "SavingsAccount",
+      "AccountNumber": 3333,
+      "AccountBalance": 3000.0,
+      "Transactions": [
+
+        {
+          "TransactionId": "3",
+          "Date": "2024-01-10",
+          "Type": "Withdraw",
+          "Amount": 500.0
+        }
+      ]
+    }
+
+
+  ]
+
+}
