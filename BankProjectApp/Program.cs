@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Principal;
+using System.Text.Json;
 
 namespace BankProjectApp
 {
@@ -9,8 +10,8 @@ namespace BankProjectApp
         {
             string BankDataJSONfilePath = "BankInfo.json";
             string AllBankDataJSONfilePathTyp = File.ReadAllText(BankDataJSONfilePath);
-            Bankdata bankDB = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
-
+            Bankdata bankdata = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
+    
 
             string[] menuOptions = {
             "Show All Account",
@@ -71,17 +72,41 @@ namespace BankProjectApp
                             case 0:
 
                                 Console.WriteLine("------ Account Details ------");
-                                foreach (var account in bankDB.AllAccountsJson)
+                                foreach (var accounts in bankdata.AllAccountsJson)
 
                                 {
-                                    Console.WriteLine($"Account Type: {account.AccountType}");
-                                    Console.WriteLine($"Account Number: {account.AccountNumber}");
-                                    Console.WriteLine($"Account Balance: {account.AccountBalance}");
+                                    Console.WriteLine($"Account Type: {accounts.AccountType}");
+                                    Console.WriteLine($"Account Number: {accounts.AccountNumber}");
+                                    Console.WriteLine($"Account Balance: {accounts.Balance}");
                                 }
 
                                 break;
                             case 1:
+                                Console.WriteLine("Enter account ID:");
+                                int accountId = int.Parse(Console.ReadLine()!);
 
+                                var account = bankdata.AllAccountsJson.FirstOrDefault(a => a.Id == accountId);
+                                if (account == null)
+                                {
+                                    Console.WriteLine("Account not found.");
+                                    return;
+                                }
+
+                                Console.WriteLine("Enter amount to deposit:");
+                                decimal amount = decimal.Parse(Console.ReadLine()!);
+
+                                account.Balance += amount;
+
+                                account.Transactions.Add(new Transaction
+                                {
+                                    TransactionId = account.Transactions.Count + 1,
+                                    Amount = amount,
+                                    Date = DateTime.Now,
+                                    Type = "Deposit"
+                                });
+
+                                Console.WriteLine($"Successfully deposited {amount}. New balance: {account.Balance}");
+                                //SaveAllData(bankInfo);
 
                                 break;
                             case 2:
@@ -97,7 +122,13 @@ namespace BankProjectApp
                                 Console.WriteLine("Displaying transaction history...");
                                 break;
                             case 6:
-                                Console.WriteLine("Saving changes and exiting... Thank you!");
+                                //Console.WriteLine("Saving changes and exiting... Thank you!");
+                                //string dankDataJSONfilePath = "BankInfo.json";
+                                //string savainbankdata = JsonSerializer.Serialize(bankdata, new JsonSerializerOptions { WriteIndented = true });
+                                //File.WriteAllText(dankDataJSONfilePath, savainbankdata);
+                                //MirrorChangesToProjectRoot("BankInfo.json");
+
+                                
                                 exit = true;
                                 break;
                             default:
