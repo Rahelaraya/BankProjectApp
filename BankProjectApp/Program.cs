@@ -4,26 +4,26 @@ using System.Text.Json;
 namespace BankProjectApp
 {
 
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
             string BankDataJSONfilePath = "BankInfo.json";
             string AllBankDataJSONfilePathTyp = File.ReadAllText(BankDataJSONfilePath);
             Bankdata bankdata = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
-    
+            Bank bank = new Bank();
 
             string[] menuOptions = {
-            "Show All Account",
-            "Deposit Money",
-            "Withdraw Money",
-            "Transfer Money",
-            "Add Account",
-            "Show Transactions",
-            "Save & Exit"
-            };
+        "Show All Account",
+        "Deposit Money",
+        "Withdraw Money",
+        "Transfer Money",
+        "Add Account",
+        "Show Transactions",
+        "Save & Exit"
+    };
 
-            int currentSelection = 0;
+            int currentSelection = 1; // Start with the first menu item
             bool exit = false;
 
             while (!exit)
@@ -36,9 +36,9 @@ namespace BankProjectApp
                 Console.ResetColor();
 
                 // Display the menu with highlighting for the selected option
-                for (int i = 0; i < menuOptions.Length; i++)
+                for (int i = 0; i < menuOptions.Length; i++) // Start from 0
                 {
-                    if (i == currentSelection)
+                    if (i + 1 == currentSelection) // Compare with 1-based index
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine($"> {menuOptions[i]}");
@@ -50,40 +50,33 @@ namespace BankProjectApp
                     }
                 }
 
-
                 ConsoleKey key = Console.ReadKey(true).Key;
                 switch (key)
                 {
                     case ConsoleKey.UpArrow:
-                        if (currentSelection > 0) currentSelection--;
+                        if (currentSelection > 1) currentSelection--; // Adjust logic to match 1-based index
                         break;
                     case ConsoleKey.DownArrow:
-                        if (currentSelection < menuOptions.Length - 1) currentSelection++;
+                        if (currentSelection < menuOptions.Length) currentSelection++; // Adjust logic to match 1-based index
                         break;
                     case ConsoleKey.Enter:
                         Console.Clear();
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"You selected: {menuOptions[currentSelection]}\n");
+                        Console.WriteLine($"You selected: {menuOptions[currentSelection - 1]}\n"); // Access 0-based array index
                         Console.ResetColor();
 
-
-                        switch (currentSelection)
+                        switch (currentSelection) // Match 1-based index
                         {
-                            case 0:
-
-                                Console.WriteLine("------ Account Details ------");
-                                foreach (var accounts in bankdata.AllAccountsJson)
-
-                                {
-                                    Console.WriteLine($"Account Type: {accounts.AccountType}");
-                                    Console.WriteLine($"Account Number: {accounts.AccountNumber}");
-                                    Console.WriteLine($"Account Balance: {accounts.Balance}");
-                                }
-
-                                break;
                             case 1:
+                                bank.viewallaccount(bankdata); 
+                                break;
+                            case 2:
                                 Console.WriteLine("Enter account ID:");
-                                int accountId = int.Parse(Console.ReadLine()!);
+                                if (!int.TryParse(Console.ReadLine(), out int accountId))
+                                {
+                                    Console.WriteLine("Invalid account ID.");
+                                    return;
+                                }
 
                                 var account = bankdata.AllAccountsJson.FirstOrDefault(a => a.Id == accountId);
                                 if (account == null)
@@ -93,7 +86,11 @@ namespace BankProjectApp
                                 }
 
                                 Console.WriteLine("Enter amount to deposit:");
-                                decimal amount = decimal.Parse(Console.ReadLine()!);
+                                if (!decimal.TryParse(Console.ReadLine(), out decimal amount) || amount <= 0)
+                                {
+                                    Console.WriteLine("Invalid deposit amount. Please enter a positive number.");
+                                    return;
+                                }
 
                                 account.Balance += amount;
 
@@ -105,30 +102,71 @@ namespace BankProjectApp
                                     Type = "Deposit"
                                 });
 
-                                Console.WriteLine($"Successfully deposited {amount}. New balance: {account.Balance}");
-                                //SaveAllData(bankInfo);
-
-                                break;
-                            case 2:
-                                Console.WriteLine("Withdraw Money: Enter the amount...");
+                                Console.WriteLine($"Successfully deposited {amount:C}. New balance: {account.Balance:C}");
                                 break;
                             case 3:
-                                Console.WriteLine("Transfer Money: Enter recipient details...");
+
+                                Console.WriteLine("Enter account ID:");
+                                if (!int.TryParse(Console.ReadLine(), out int id))
+                                {
+                                    Console.WriteLine("Invalid account ID.");
+                                    return;
+                                }
+
+                                Console.WriteLine("Enter amount to withdraw:");
+                                if (!decimal.TryParse(Console.ReadLine(), out decimal withdrawAmount))
+                                {
+                                    Console.WriteLine("Invalid withdrawal amount.");
+                                    return;
+                                }
+
+                                if (withdrawAmount <= 0)
+                                {
+                                    Console.WriteLine("Withdrawal amount must be greater than zero.");
+                                    return;
+                                }
+
+                                var accounts = bankdata.AllAccountsJson.FirstOrDefault(a => a.Id == id);
+
+                                if (accounts is null)
+                                {
+                                    Console.WriteLine("Account not found.");
+                                    return;
+                                }
+
+                                if (accounts.Balance < withdrawAmount)
+                                {
+                                    Console.WriteLine("Insufficient funds.");
+                                    return;
+                                }
+
+                                accounts.Balance -= withdrawAmount;
+
+                                accounts.Transactions ??= new List<Transaction>();
+                                accounts.Transactions.Add(new Transaction
+                                {
+                                    TransactionId = accounts.Transactions.Count + 1,
+                                    Amount = -withdrawAmount,
+                                    Date = DateTime.Now,
+                                    Type = "Withdrawal"
+                                });
+
+                                Console.WriteLine($"Successfully withdrew {withdrawAmount:C}. New balance: {accounts.Balance:C}");
+
                                 break;
                             case 4:
-                                Console.WriteLine("Adding a new account...");
+                                Console.WriteLine("Transfer Money: Enter recipient details...");
                                 break;
                             case 5:
-                                Console.WriteLine("Displaying transaction history...");
+                                Console.WriteLine("Adding a new account...");
                                 break;
                             case 6:
-                                //Console.WriteLine("Saving changes and exiting... Thank you!");
-                                //string dankDataJSONfilePath = "BankInfo.json";
-                                //string savainbankdata = JsonSerializer.Serialize(bankdata, new JsonSerializerOptions { WriteIndented = true });
-                                //File.WriteAllText(dankDataJSONfilePath, savainbankdata);
-                                //MirrorChangesToProjectRoot("BankInfo.json");
+                                Console.WriteLine("Displaying transaction history...");
+                                break;
+                            case 7:
+                              
 
-                                
+
                                 exit = true;
                                 break;
                             default:
@@ -150,5 +188,8 @@ namespace BankProjectApp
                 }
             }
         }
+
+       
+
     }
 }
