@@ -54,18 +54,18 @@ namespace BankProjectApp
                 switch (key)
                 {
                     case ConsoleKey.UpArrow:
-                        if (currentSelection > 1) currentSelection--; // Adjust logic to match 1-based index
+                        if (currentSelection > 1) currentSelection--; 
                         break;
                     case ConsoleKey.DownArrow:
-                        if (currentSelection < menuOptions.Length) currentSelection++; // Adjust logic to match 1-based index
+                        if (currentSelection < menuOptions.Length) currentSelection++; 
                         break;
                     case ConsoleKey.Enter:
                         Console.Clear();
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"You selected: {menuOptions[currentSelection - 1]}\n"); // Access 0-based array index
+                        Console.WriteLine($"You selected: {menuOptions[currentSelection - 1]}\n"); 
                         Console.ResetColor();
 
-                        switch (currentSelection) // Match 1-based index
+                        switch (currentSelection) 
                         {
                             case 1:
                                 bank.viewallaccount(bankdata); 
@@ -155,7 +155,86 @@ namespace BankProjectApp
 
                                 break;
                             case 4:
-                                Console.WriteLine("Transfer Money: Enter recipient details...");
+
+                                    Console.WriteLine("Transfer Money");
+                                    Console.WriteLine("----------------");
+
+                                    Console.Write("Enter sender account ID: ");
+                                    if (!int.TryParse(Console.ReadLine(), out int senderId))
+                                    {
+                                        Console.WriteLine("Invalid sender account ID.");
+                                        return;
+                                    }
+
+                                    Console.Write("Enter receiver account ID: ");
+                                    if (!int.TryParse(Console.ReadLine(), out int receiverId))
+                                    {
+                                        Console.WriteLine("Invalid receiver account ID.");
+                                        return;
+                                    }
+
+                                    Console.Write("Enter amount to transfer: ");
+                                    if (!decimal.TryParse(Console.ReadLine(), out decimal transferAmount))
+                                    {
+                                        Console.WriteLine("Invalid transfer amount.");
+                                        return;
+                                    }
+
+                                    if (transferAmount <= 0)
+                                    {
+                                        Console.WriteLine("Transfer amount must be greater than zero.");
+                                        return;
+                                    }
+
+                                    var senderAccount = bankdata.AllAccountsJson.FirstOrDefault(a => a.Id == senderId);
+                                    var receiverAccount = bankdata.AllAccountsJson.FirstOrDefault(a => a.Id == receiverId);
+
+                                    if (senderAccount is null)
+                                    {
+                                        Console.WriteLine("Sender account not found.");
+                                        return;
+                                    }
+
+                                    if (receiverAccount is null)
+                                    {
+                                        Console.WriteLine("Receiver account not found.");
+                                        return;
+                                    }
+
+                                    if (senderAccount.Balance < transferAmount)
+                                    {
+                                        Console.WriteLine("Insufficient funds in sender account.");
+                                        return;
+                                    }
+
+                                    // Update balances
+                                    senderAccount.Balance -= transferAmount;
+                                    receiverAccount.Balance += transferAmount;
+
+                                    // Add transactions
+                                    senderAccount.Transactions ??= new List<Transaction>();
+                                    senderAccount.Transactions.Add(new Transaction
+                                    {
+                                        TransactionId = senderAccount.Transactions.Count + 1,
+                                        Amount = -transferAmount,
+                                        Date = DateTime.Now,
+                                        Type = "Transfer Out"
+                                    });
+
+                                    receiverAccount.Transactions ??= new List<Transaction>();
+                                    receiverAccount.Transactions.Add(new Transaction
+                                    {
+                                        TransactionId = receiverAccount.Transactions.Count + 1,
+                                        Amount = transferAmount,
+                                        Date = DateTime.Now,
+                                        Type = "Transfer In"
+                                    });
+
+                                    Console.WriteLine($"Successfully transferred {transferAmount:C}. New balances:");
+                                    Console.WriteLine($"Sender: {senderAccount.Balance:C}");
+                                    Console.WriteLine($"Receiver: {receiverAccount.Balance:C}");
+                                
+
                                 break;
                             case 5:
                                 Console.WriteLine("Adding a new account...");
@@ -165,6 +244,7 @@ namespace BankProjectApp
                                 break;
                             case 7:
                               
+
 
 
                                 exit = true;
