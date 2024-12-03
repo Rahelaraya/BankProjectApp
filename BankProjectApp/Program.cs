@@ -12,9 +12,6 @@ namespace BankProjectApp
             string AllBankDataJSONfilePathTyp = File.ReadAllText(BankDataJSONfilePath);
             Bankdata bankdata = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
             Bank bank = new Bank();
-
-            
-
             string[] menuOptions = {
               "Show All Account",
              "Deposit Money",
@@ -104,10 +101,7 @@ namespace BankProjectApp
                             Console.ReadKey();
                         }
                         break;
-
-                    default:
-                        Console.WriteLine("Invalid key. Use Up/Down arrows or Enter.");
-                        break;
+                    
                 }
             }
         }

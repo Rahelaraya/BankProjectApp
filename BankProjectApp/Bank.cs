@@ -7,19 +7,29 @@ using System.Threading.Tasks;
 
 namespace BankProjectApp
 {
-   public class Bank
-   {
+    public class Bank
+    {
         public void viewallaccount(Bankdata bankdata)
         {
             Console.WriteLine("------ Account Details ------");
-            foreach (var accounts in bankdata.AllAccountsJson)
+            Console.WriteLine("-----------------------------------------------------");
+            Console.WriteLine("{0,-15} {1,-20} {2,-15}", "Account Type", "Account Number", "Balance");
+            Console.WriteLine("-----------------------------------------------------");
 
+            foreach (var account in bankdata.AllAccountsJson)
             {
-                Console.WriteLine($"Account Type: {accounts.AccountType}");
-                Console.WriteLine($"Account Number: {accounts.AccountNumber}");
-                Console.WriteLine($"Account Balance: {accounts.Balance}");
+                Console.WriteLine("{0,-15} {1,-20} {2,-15:C}",
+                    account.AccountType,
+                    account.AccountNumber,
+                    account.Balance);
             }
+
+            Console.WriteLine("-----------------------------------------------------");
+            Console.WriteLine($"Total Accounts: {bankdata.AllAccountsJson.Count}");
+            Console.WriteLine();
+            SaveAllData(bankdata);
         }
+
         public void Deposit(Bankdata bankdata)
         {
             Console.WriteLine("Enter account ID:");
@@ -53,7 +63,19 @@ namespace BankProjectApp
                 Type = "Deposit"
             });
 
-            Console.WriteLine($"Successfully deposited {amount:C}. New balance: {account.Balance:C}");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n========================================");
+            Console.WriteLine("        Deposit Successful!             ");
+            Console.WriteLine("========================================");
+            Console.ResetColor();
+
+            Console.WriteLine($"Amount Deposited: {amount:C}");
+            Console.WriteLine($"New Account Balance: {account.Balance:C}");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("========================================\n");
+            Console.ResetColor();
+            SaveAllData(bankdata);
         }
         public void withdrawal(Bankdata bankdata)
         {
@@ -102,7 +124,20 @@ namespace BankProjectApp
                 Type = "Withdrawal"
             });
 
-            Console.WriteLine($"Successfully withdrew {withdrawAmount:C}. New balance: {accounts.Balance:C}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\n========================================");
+            Console.WriteLine("       Withdrawal Successful!           ");
+            Console.WriteLine("========================================");
+            Console.ResetColor();
+
+            Console.WriteLine($"Amount Withdrawn: {withdrawAmount:C}");
+            Console.WriteLine($"Remaining Account Balance: {accounts.Balance:C}");
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("========================================\n");
+            Console.ResetColor();
+
+            SaveAllData(bankdata);
         }
         public void TransferMoney(Bankdata bankdata)
         {
@@ -180,9 +215,22 @@ namespace BankProjectApp
                 Type = "Transfer In"
             });
 
-            Console.WriteLine($"Successfully transferred {transferAmount:C}. New balances:");
-            Console.WriteLine($"Sender: {senderAccount.Balance:C}");
-            Console.WriteLine($"Receiver: {receiverAccount.Balance:C}");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("\n========================================");
+            Console.WriteLine("         Transfer Successful!           ");
+            Console.WriteLine("========================================");
+            Console.ResetColor();
+
+            Console.WriteLine($"Amount Transferred: {transferAmount:C}\n");
+            Console.WriteLine("Updated Balances:");
+            Console.WriteLine($"  Sender Account:   {senderAccount.Balance:C}");
+            Console.WriteLine($"  Receiver Account: {receiverAccount.Balance:C}");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("========================================\n");
+            Console.ResetColor();
+
+            SaveAllData(bankdata);
         }
         public void ShowTransactions(Bankdata bankdata)
         {
@@ -220,6 +268,7 @@ namespace BankProjectApp
 
             Console.WriteLine("-------------------------------------------------");
             Console.WriteLine($"Current Balance: {Account.Balance:C}");
+            SaveAllData(bankdata);
         }
 
         public void AddAccount(Bankdata bankdata)
@@ -267,13 +316,13 @@ namespace BankProjectApp
                 AccountType = accountType,
                 Balance = initialDeposit,
                 Transactions = new List<Transaction>
-                                    {
-                                        new Transaction
-                                        {
-                                            TransactionId = 1,
-                                            Amount = initialDeposit,
-                                            Date = DateTime.Now,
-                                            Type = "Initial Deposit"
+                {
+                  new Transaction
+                 {
+                  TransactionId = 1,
+                 Amount = initialDeposit,
+                                          Date = DateTime.Now,
+                  Type = "Initial Deposit"
                                         }
                                     }
             };
@@ -281,38 +330,60 @@ namespace BankProjectApp
             // Add the new account to the collection
 
 
-            Console.WriteLine($"Account successfully created for {accountHolderName}.");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("\n========================================");
+            Console.WriteLine("         New Account Created!           ");
+            Console.WriteLine("========================================");
+            Console.ResetColor();
+
+            Console.WriteLine($"Account successfully created for: {accountHolderName}");
             Console.WriteLine($"Account Type: {accountType}");
             Console.WriteLine($"Account ID: {newAccount.Id}");
             Console.WriteLine($"Initial Balance: {newAccount.Balance:C}");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("========================================\n");
+            Console.ResetColor();
+
         }
         public void SaveandExit(Bankdata bankdata)
         {
-            
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("You selected: Save & Exit\n");
             Console.ResetColor();
 
-            Console.WriteLine("Saving your data...");
             try
             {
-                string updatedBankDataJson = JsonSerializer.Serialize(bankdata, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText("BankInfo.json", updatedBankDataJson);
-                Console.WriteLine("Data saved successfully. Exiting the application.");
+                // Save all data
+                SaveAllData(bankdata);
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Data saved successfully. Goodbye!");
+                Console.ResetColor();
+
+                // Exit the application
+                Environment.Exit(0);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error saving data: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"An error occurred while saving the data: {ex.Message}");
+                Console.ResetColor();
             }
-            finally
-            {
-                Console.WriteLine("Goodbye!");
-                Environment.Exit(0);
-
-            } 
         }
+        public void SaveAllData(Bankdata bankdata)
+        {
+            string BankDataJSONfilePath = "BankInfo.json";
 
+            string updatedBankDB = JsonSerializer.Serialize(bankdata, new JsonSerializerOptions { WriteIndented = true });
 
+            File.WriteAllText(BankDataJSONfilePath, updatedBankDB);
+
+        }
+       
     }
+        
 }
+
+
