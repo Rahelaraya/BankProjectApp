@@ -13,6 +13,8 @@ namespace BankProjectApp
             Bankdata bankdata = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
             Bank bank = new Bank();
 
+            
+
             string[] menuOptions = {
         "Show All Account",
         "Deposit Money",
@@ -237,18 +239,134 @@ namespace BankProjectApp
 
                                 break;
                             case 5:
-                                Console.WriteLine("Adding a new account...");
-                                break;
-                            case 6:
-                                Console.WriteLine("Displaying transaction history...");
-                                break;
-                            case 7:
+                                Console.WriteLine("Choose the type of account you want to create:");
+                                Console.WriteLine("1. Saving Account");
+                                Console.WriteLine("2. Personal Account");
+                                Console.WriteLine("3. Investment Account");
+
+                                if (!int.TryParse(Console.ReadLine(), out int accountTypeChoice) || accountTypeChoice < 1 || accountTypeChoice > 3)
+                                {
+                                    Console.WriteLine("Invalid choice. Please select a valid account type.");
+                                    return;
+                                }
+
+                                
+                                string accountType = accountTypeChoice switch
+                                {
+                                    1 => "Saving Account",
+                                    2 => "Personal Account",
+                                    3 => "Investment Account",
+                                                                   };
+
+                                Console.WriteLine("Enter the new account holder's name:");
+                                string accountHolderName = Console.ReadLine();
+
+                                if (string.IsNullOrWhiteSpace(accountHolderName))
+                                {
+                                    Console.WriteLine("Account holder's name cannot be empty.");
+                                    return;
+                                }
+
+                                Console.WriteLine("Enter an initial deposit amount:");
+                                if (!decimal.TryParse(Console.ReadLine(), out decimal initialDeposit) || initialDeposit < 0)
+                                {
+                                    Console.WriteLine("Invalid deposit amount. Please enter a positive number or zero.");
+                                    return;
+                                }
+
+
+                                var newAccount = new Account(4, "", "", 44,2)
+                                {
+                                    Id = bankdata.AllAccountsJson.Any() ? bankdata.AllAccountsJson.Max(a => a.Id) + 1 : 1, 
+                                    Name = accountHolderName,
+                                    AccountType = accountType, 
+                                    Balance = initialDeposit,
+                                    Transactions = new List<Transaction>
+                                    {
+                                        new Transaction
+                                        {
+                                            TransactionId = 1,
+                                            Amount = initialDeposit,
+                                            Date = DateTime.Now,
+                                            Type = "Initial Deposit"
+                                        }
+                                    }
+                                };
+
+                                // Add the new account to the collection
                               
 
-
-
-                                exit = true;
+                                Console.WriteLine($"Account successfully created for {accountHolderName}.");
+                                Console.WriteLine($"Account Type: {accountType}");
+                                Console.WriteLine($"Account ID: {newAccount.Id}");
+                                Console.WriteLine($"Initial Balance: {newAccount.Balance:C}");
+                            
                                 break;
+                            case 6:
+                                Console.WriteLine("Enter the account ID to view the transaction history:");
+                                if (!int.TryParse(Console.ReadLine(), out int Id))
+                                {
+                                    Console.WriteLine("Invalid account ID.");
+                                    return;
+                                }
+
+                                // Find the account
+                                var Account = bankdata.AllAccountsJson.FirstOrDefault(a => a.Id == Id);
+                                if (Account == null)
+                                {
+                                    Console.WriteLine("Account not found.");
+                                    return;
+                                }
+
+                                if (Account.Transactions == null || !Account.Transactions.Any())
+                                {
+                                    Console.WriteLine("No transactions found for this account.");
+                                    return;
+                                }
+
+                                Console.WriteLine($"Transaction History for Account ID: {Id}");
+                                Console.WriteLine("-------------------------------------------------");
+                                Console.WriteLine("{0,-10} {1,-20} {2,-15} {3,-10}", "Txn ID", "Date", "Type", "Amount");
+                                Console.WriteLine("-------------------------------------------------");
+
+                                foreach (var txn in Account.Transactions)
+                                {
+                                    Console.WriteLine("{0,-10} {1,-20:yyyy-MM-dd HH:mm} {2,-15} {3,-10:C}",
+                                        txn.TransactionId, txn.Date, txn.Type, txn.Amount);
+                                }
+
+                                Console.WriteLine("-------------------------------------------------");
+                                Console.WriteLine($"Current Balance: {Account.Balance:C}");
+
+
+                                break;
+                            case 7:
+                           
+                                Console.Clear();
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine("You selected: Save & Exit\n");
+                                Console.ResetColor();
+
+                                Console.WriteLine("Saving your data...");
+                                try
+                                {
+                                    string updatedBankDataJson = JsonSerializer.Serialize(bankdata, new JsonSerializerOptions { WriteIndented = true });
+                                    File.WriteAllText("BankInfo.json", updatedBankDataJson);
+                                    Console.WriteLine("Data saved successfully. Exiting the application.");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"Error saving data: {ex.Message}");
+                                }
+                                finally
+                                {
+                                    Console.WriteLine("Goodbye!");
+                                    Environment.Exit(0);
+
+                                    exit = true;
+                                }
+                                break;
+
                             default:
                                 Console.WriteLine("Invalid Selection. Try again.");
                                 break;
