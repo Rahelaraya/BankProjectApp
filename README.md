@@ -1,7 +1,7 @@
-######
+#####
 Bank Management App
-This console-based Bank Management App allows users to manage accounts and perform essential banking operations like viewing accounts, deposits, withdrawals, and transfers. The app uses JSON for storing and loading account data, ensuring persistent storage.
 ---
+This console-based Bank Management App allows users to manage accounts and perform essential banking operations like viewing accounts, deposits, withdrawals, and transfers. The app uses JSON for storing and loading account data, ensuring persistent storage.
 
 ### **Features**:
 - **Interactive Menu**: Use arrow keys to navigate and Enter to select options.
