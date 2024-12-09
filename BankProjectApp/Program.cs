@@ -1,28 +1,28 @@
-﻿using System.Text.Json;
+﻿using System.Security.Principal;
+using System.Text.Json;
 
 namespace BankProjectApp
 {
 
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
             string BankDataJSONfilePath = "BankInfo.json";
             string AllBankDataJSONfilePathTyp = File.ReadAllText(BankDataJSONfilePath);
-            Bankdata bankDB = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
-
-
+            Bankdata bankdata = JsonSerializer.Deserialize<Bankdata>(AllBankDataJSONfilePathTyp)!;
+            Bank bank = new Bank();
             string[] menuOptions = {
-            "Show All Account",
-            "Deposit Money",
-            "Withdraw Money",
-            "Transfer Money",
-            "Add Account",
-            "Show Transactions",
-            "Save & Exit"
+              "Show All Account",
+             "Deposit Money",
+             "Withdraw Money",
+             "Transfer Money",
+             "Add Account",
+             "Show Transactions",
+             "Save & Exit"
             };
 
-            int currentSelection = 0;
+            int currentSelection = 1; 
             bool exit = false;
 
             while (!exit)
@@ -35,9 +35,9 @@ namespace BankProjectApp
                 Console.ResetColor();
 
                 // Display the menu with highlighting for the selected option
-                for (int i = 0; i < menuOptions.Length; i++)
+                for (int i = 0; i < menuOptions.Length; i++) // Start from 0
                 {
-                    if (i == currentSelection)
+                    if (i + 1 == currentSelection) // Compare with 1-based index
                     {
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine($"> {menuOptions[i]}");
@@ -49,75 +49,71 @@ namespace BankProjectApp
                     }
                 }
 
-
                 ConsoleKey key = Console.ReadKey(true).Key;
                 switch (key)
                 {
                     case ConsoleKey.UpArrow:
-                        if (currentSelection > 0) currentSelection--;
+                        if (currentSelection > 1) currentSelection--; 
                         break;
                     case ConsoleKey.DownArrow:
-                        if (currentSelection < menuOptions.Length - 1) currentSelection++;
+                        if (currentSelection < menuOptions.Length) currentSelection++; 
                         break;
                     case ConsoleKey.Enter:
                         Console.Clear();
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"You selected: {menuOptions[currentSelection]}\n");
+                        Console.WriteLine($"You selected: {menuOptions[currentSelection - 1]}\n"); 
                         Console.ResetColor();
 
-
-                        switch (currentSelection)
+                        switch (currentSelection) 
                         {
-                            case 0:
-
-                                Console.WriteLine("------ Account Details ------");
-                                foreach (var account in bankDB.AllAccountsJson)
-
-                                {
-                                    Console.WriteLine($"Account Type: {account.AccountType}");
-                                    Console.WriteLine($"Account Number: {account.AccountNumber}");
-                                    Console.WriteLine($"Account Balance: {account.AccountBalance}");
-                                }
-
-                                break;
                             case 1:
-
-
+                                bank.viewallaccount(bankdata); 
                                 break;
                             case 2:
-                                Console.WriteLine("Withdraw Money: Enter the amount...");
+                               bank.Deposit(bankdata);
                                 break;
                             case 3:
-                                Console.WriteLine("Transfer Money: Enter recipient details...");
+                                bank.withdrawal(bankdata);
+
                                 break;
                             case 4:
-                                Console.WriteLine("Adding a new account...");
+                               bank.TransferMoney(bankdata);
+
                                 break;
                             case 5:
-                                Console.WriteLine("Displaying transaction history...");
+                               bank.AddAccount(bankdata);
                                 break;
                             case 6:
-                                Console.WriteLine("Saving changes and exiting... Thank you!");
-                                exit = true;
+                               bank.ShowTransactions(bankdata);
+
                                 break;
+                            case 7:
+                                bank.SaveandExit(bankdata);
+                                break;
+
                             default:
                                 Console.WriteLine("Invalid Selection. Try again.");
                                 break;
                         }
-
-
                         if (!exit)
                         {
                             Console.WriteLine("\nPress any key to return to the menu...");
                             Console.ReadKey();
                         }
                         break;
-
-                    default:
-                        Console.WriteLine("Invalid key. Use Up/Down arrows or Enter.");
-                        break;
+                    
                 }
             }
         }
+
+       
+
+       
+        
+        
+
+       
+
+
     }
 }

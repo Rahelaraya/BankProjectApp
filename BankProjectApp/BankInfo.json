@@ -1,20 +1,21 @@
 {
   "Accounts": [
     {
+      "Id": 1,
       "Name": "Elon Musk",
       "AccountType": "PersonalAccount",
       "AccountNumber": 1111,
-      "AccountBalance": 10000,
+      "Balance": 10000,
       "Transactions": [
         {
-          "TransactionId": "1",
+          "TransactionId": 1,
           "Date": "2024-01-01",
           "Type": "Deposit",
           "Amount": 1000.0
 
         },
         {
-          "TransactionId": "1",
+          "TransactionId": 2,
           "Date": "2024-01-10",
           "Type": "Withdraw",
           "Amount": 500.0
@@ -24,32 +25,44 @@
 
     },
     {
+      "Id": 2,
       "Name": "Elon Musk",
       "AccountType": "InvestmentAccount",
       "AccountNumber": 2222,
-      "AccountBalance": 20000.0,
+      "Balance": 20000.0,
       "Transactions": [
         {
-          "TransactionId": "2",
-          "Date": "2024-01-05",
-          "Type": "Deposit",
-          "Amount": 2000.0
+          "TransactionId": 3,
+          "Amount": 5000.00,
+          "Date": "2024-02-01T00:00:00",
+          "Type": "Deposit"
+        },
+        {
+          "TransactionId": 1,
+          "Amount": 1000.00,
+          "Date": "2024-02-10T00:00:00",
+          "Type": "Withdrawal"
         }
-
       ]
     },
     {
+      "Id": 3,
       "Name": "Elon Musk",
       "AccountType": "SavingsAccount",
       "AccountNumber": 3333,
-      "AccountBalance": 3000.0,
+      "Balance": 3000.0,
       "Transactions": [
-
         {
-          "TransactionId": "3",
-          "Date": "2024-01-10",
-          "Type": "Withdraw",
-          "Amount": 500.0
+          "TransactionId": 2,
+          "Amount": 5000.00,
+          "Date": "2024-02-01T00:00:00",
+          "Type": "Deposit"
+        },
+        {
+          "TransactionId": 3,
+          "Amount": 1000.00,
+          "Date": "2024-02-10T00:00:00",
+          "Type": "Withdrawal"
         }
       ]
     }

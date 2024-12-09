@@ -13,5 +13,7 @@ namespace BankProjectApp
         public required string Type { get; set; }
         public decimal Amount { get; set; }
 
+   
+
     }
 }
